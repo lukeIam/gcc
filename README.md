@@ -1,2 +1,3 @@
-# gcc
-GCComment webservice
+# GCComment webservice
+
+Repo for the GCComment webservice
