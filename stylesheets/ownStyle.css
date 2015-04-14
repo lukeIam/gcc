@@ -1,0 +1,8 @@
+.twoLineButton{
+	height: 30px;	
+}
+
+.twoLineButton a {
+	display: inline-block;
+	background-position-y: 5px;
+}
