@@ -60,9 +60,18 @@
 		$('#lblName').text(c.name);
 		$('#boxComment').text(c.commentValue);
 		$('#btnDownloadGccFile a').attr('href', fileInfo["raw_url"]);
+		displayCoordinate(c);
 		unblockGui();
 	};
-
+	
+	var displayCoordinate = function(coord){
+		for(var i=0; i<coord["waypoints"].length; i++){
+			var c = coord["waypoints"][i];
+			var convCoord = convertToDD(c.coordinate);
+			$("<tr><td><img style='height:16px;width:16px;' src='images/flag.png'></img></td> <td>"+ c.prefix +"</td> <td>"+ c.lookup +"</td> <td style='max-width: 170px; word-wrap: break-word;'>"+ c.name +"</td> <td><span>"+ c.coordinate +"</span><p style='margin-left: 30%;margin-bottom: 0;'> <a target='_blank' href='https://www.google.de/maps?q="+c.coordinate+"'><img src='images/gmap.png' style='height: 20px;'></img></a> <a target='_blank' href='https://www.openstreetmap.org/?mlat="+convCoord.lat+"&mlon="+convCoord.lon+"&zoom=16'><img src='images/osm.png' style='height: 20px;'></img></a> </p></td> </tr>").appendTo('#boxCoords tbody');
+		}
+	}
+	
 	var addToGcc = function(){
 		alert("Not working yet");
 	};
@@ -83,6 +92,16 @@
 		return d.promise();
 	}
 
+	var convertToDD = function(str){
+		var dataLat = str.match(/([NS]) *([0-9]+)[^0-9]*([0-9]+\.[0-9]+)/);
+		var dataLon = str.match(/([WE]) *([0-9]+)[^0-9]*([0-9]+\.[0-9]+)/);
+		
+		return {
+			lat:(parseFloat(dataLat[2])+(parseFloat(dataLat[3])/60))*(dataLat[1].trim()==="S"?-1:1),
+			lon:(parseFloat(dataLon[2])+(parseFloat(dataLon[3])/60))*(dataLon[1].trim()==="W"?-1:1)
+		};
+	}
+	
 	//Modified version of parseXMLImport from gccomment.user.js
 	var parseXMLToComment = function (xml) {
 		function unescapeXML(escaped) {

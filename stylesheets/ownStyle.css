@@ -6,3 +6,20 @@
 	display: inline-block;
 	background-position-y: 5px;
 }
+
+#boxCoords{
+	margin-bottom:0px;
+	margin-top: -20px;
+}
+
+pre{
+	margin-bottom: 5px;
+}
+
+tbody img{
+	margin: 0px;
+}
+
+td{
+	vertical-align: middle;
+}
