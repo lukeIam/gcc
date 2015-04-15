@@ -23,3 +23,7 @@ tbody img{
 td{
 	vertical-align: middle;
 }
+
+h3{
+	cursor: pointer;
+}

@@ -8,7 +8,10 @@
 	var init = function () {
 		blockGui(loadingPopup);
 		
-		$('#btnAddToGcc').click(addToGcc);		
+		$('#btnAddToGcc').click(addToGcc);
+		$('h3').click(function(e){
+			$(e.target).next().slideToggle();
+		});
 		
 		var hash = window.location.hash.substring(1).trim();
 		if (hash === "") {
