@@ -130,10 +130,10 @@
 			map.addLayer(homeWaypoint);
 			bounds.extend(latlngHome);
 		}
-
+		
 		for (var m = 0; coord.waypoints && (m < coord.waypoints.length); m++) {
 			var coords = convertToDD(coord.waypoints[m].coordinate);
-			if (coords.lat && coord.lon) {
+			if (coords.lat && coords.lon) {
 				var latlngWaypoint = new L.LatLng(coords["lat"], coords["lon"]);
 				var markerWaypoint = new L.Marker(latlngWaypoint, {
 					icon : new L.Icon({	
@@ -175,7 +175,7 @@
 			fillOpacity : 1
 		}));
 
-		map.fitBounds(bounds);
+		map.fitBounds(bounds, {padding: [5,5]});
 	};
 	
 	var addToGcc = function(){
