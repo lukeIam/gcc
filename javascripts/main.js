@@ -38,7 +38,7 @@
 	};
 
 	var blockGui = function (messageHtml) {
-		$('#btnAddToGcc, #btnDownloadGccFile').block({ message: null });
+		$('#btnAddToGcc, #btnDownloadGccFile, #btnLinkGC').block({ message: null });
 		$('section').block({
 			message: messageHtml,
 			css: {
@@ -53,7 +53,7 @@
 	};
 
 	var unblockGui = function () {
-		$('#btnAddToGcc, #btnDownloadGccFile, section').unblock();
+		$('#btnAddToGcc, #btnDownloadGccFile, #btnLinkGC, section').unblock();
 	};
 
 	var displayComment = function (c, fileInfo) {
@@ -61,6 +61,7 @@
 		_fileInfo = fileInfo;
 		$('#lblGcCode').text(c.gccode);
 		$('#lblName').text(c.name);
+		$('#btnLinkGC a').attr("href", "http://coord.info/"+c.gccode);
 		$('#boxComment').text(c.commentValue);
 		$('#btnDownloadGccFile a').attr('href', fileInfo["raw_url"]);
 		displayFinalCoordinate(c);
