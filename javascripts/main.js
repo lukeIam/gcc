@@ -63,16 +63,21 @@
 		$('#lblName').text(c.name);
 		$('#boxComment').text(c.commentValue);
 		$('#btnDownloadGccFile a').attr('href', fileInfo["raw_url"]);
-		displayCoordinate(c);
+		displayFinalCoordinate(c);
+		displayCoordinates(c);
 		unblockGui();
 	};
 	
-	var displayCoordinate = function(coord){
+	var displayCoordinates = function(coord){
 		for(var i=0; i<coord["waypoints"].length; i++){
 			var c = coord["waypoints"][i];
 			var convCoord = convertToDD(c.coordinate);
 			$("<tr><td><img style='height:16px;width:16px;' src='images/flag.png'></img></td> <td>"+ c.prefix +"</td> <td>"+ c.lookup +"</td> <td style='max-width: 170px; word-wrap: break-word;'>"+ c.name +"</td> <td><span>"+ c.coordinate +"</span><p style='margin-left: 30%;margin-bottom: 0;'> <a target='_blank' href='https://www.google.de/maps?q="+c.coordinate+"'><img src='images/gmap.png' style='height: 20px;'></img></a> <a target='_blank' href='https://www.openstreetmap.org/?mlat="+convCoord.lat+"&mlon="+convCoord.lon+"&zoom=16'><img src='images/osm.png' style='height: 20px;'></img></a> </p></td> </tr>").appendTo('#boxCoords tbody');
 		}
+	}
+	
+	var displayFinalCoordinate = function(coord){		
+		$('#final-coordinate').html("<span>"+ convertToDDMM(coord.lat, coord.lng) +"</span><p style='margin-bottom: 0;'> <a target='_blank' href='https://www.google.de/maps?q="+coord.lat +" "+ coord.lng +"'><img src='images/gmap.png' style='height: 20px;'></img></a> <a target='_blank' href='https://www.openstreetmap.org/?mlat="+coord.lat+"&mlon="+coord.lng+"&zoom=16'><img src='images/osm.png' style='height: 20px;'></img></a> </p>");
 	}
 	
 	var addToGcc = function(){
@@ -104,6 +109,16 @@
 			lon:(parseFloat(dataLon[2])+(parseFloat(dataLon[3])/60))*(dataLon[1].trim()==="W"?-1:1)
 		};
 	}
+	
+	var convertToDDMM = function(lat, lon){
+		var ddLat = Math.floor(Math.abs(lat));
+		var mmLat = (Math.abs(lat)-ddLat)*60;
+		var ddLon = Math.floor(Math.abs(lon));
+		var mmLon = (Math.abs(lon)-ddLon)*60;
+		
+		return (lat<0?"S":"N") + " " + ddLat + "° " +( Math.round(mmLat * 1000) / 1000) + " " 
+			+ (lon<0?"W":"E") + " " + ddLon + "° " +( Math.round(mmLon * 1000) / 1000);
+	};
 	
 	//Modified version of parseXMLImport from gccomment.user.js
 	var parseXMLToComment = function (xml) {

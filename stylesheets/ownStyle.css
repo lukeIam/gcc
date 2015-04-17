@@ -27,3 +27,7 @@ td{
 h3{
 	cursor: pointer;
 }
+
+#final-coordinate{
+	text-align: center;
+}
