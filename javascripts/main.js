@@ -72,12 +72,15 @@
 		for(var i=0; i<coord["waypoints"].length; i++){
 			var c = coord["waypoints"][i];
 			var convCoord = convertToDD(c.coordinate);
-			$("<tr><td><img style='height:16px;width:16px;' src='images/flag.png'></img></td> <td>"+ c.prefix +"</td> <td>"+ c.lookup +"</td> <td style='max-width: 170px; word-wrap: break-word;'>"+ c.name +"</td> <td><span>"+ c.coordinate +"</span><p style='margin-left: 30%;margin-bottom: 0;'> <a target='_blank' href='https://www.google.de/maps?q="+c.coordinate+"'><img src='images/gmap.png' style='height: 20px;'></img></a> <a target='_blank' href='https://www.openstreetmap.org/?mlat="+convCoord.lat+"&mlon="+convCoord.lon+"&zoom=16'><img src='images/osm.png' style='height: 20px;'></img></a> </p></td> </tr>").appendTo('#boxCoords tbody');
+			$("<tr><td><img style='height:16px;width:16px;' src='images/flag.png'></img></td> <td>"+ c.prefix +"</td> <td>"+ c.lookup +"</td> <td style='max-width: 170px; word-wrap: break-word;'>"+ c.name +"</td> <td><span>"+ c.coordinate +"</span><p style='margin-left: 30%;margin-bottom: 0;'> <a target='_blank' href='https://www.google.de/maps?q="+c.coordinate+"'><img src='images/gmap.png' style='height: 20px;'></img></a> <a target='_blank' href='https://www.openstreetmap.org/?mlat="+convCoord.lat+"&mlon="+convCoord.lon+"&zoom=16'><img src='images/osm.png' style='height: 20px;'></img></a> </p></td> </tr>")
+			.appendTo('#boxCoords tbody')
+			.filter(isMobile).find("span").wrap("<a href='geo:"+convCoord.lat+","+convCoord.lon+"'></a>");			
 		}
 	}
 	
 	var displayFinalCoordinate = function(coord){		
-		$('#final-coordinate').html("<span>"+ convertToDDMM(coord.lat, coord.lng) +"</span><p style='margin-bottom: 0;'> <a target='_blank' href='https://www.google.de/maps?q="+coord.lat +" "+ coord.lng +"'><img src='images/gmap.png' style='height: 20px;'></img></a> <a target='_blank' href='https://www.openstreetmap.org/?mlat="+coord.lat+"&mlon="+coord.lng+"&zoom=16'><img src='images/osm.png' style='height: 20px;'></img></a> </p>");
+		$('#final-coordinate').html("<span id='finalCoordSpan'>"+ convertToDDMM(coord.lat, coord.lng) +"</span><p style='margin-bottom: 0;'> <a target='_blank' href='https://www.google.de/maps?q="+coord.lat +" "+ coord.lng +"'><img src='images/gmap.png' style='height: 20px;'></img></a> <a target='_blank' href='https://www.openstreetmap.org/?mlat="+coord.lat+"&mlon="+coord.lng+"&zoom=16'><img src='images/osm.png' style='height: 20px;'></img></a> </p>");
+		$('#finalCoordSpan').filter(isMobile).wrap("<a href='geo:"+coord.lat+","+coord.lng+"'></a>");
 	}
 	
 	var addToGcc = function(){
@@ -119,6 +122,10 @@
 		return (lat<0?"S":"N") + " " + ddLat + "° " +( Math.round(mmLat * 1000) / 1000) + " " 
 			+ (lon<0?"W":"E") + " " + ddLon + "° " +( Math.round(mmLon * 1000) / 1000);
 	};
+	
+	var isMobile = function(){
+		return (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase())) !== false;
+	}
 	
 	//Modified version of parseXMLImport from gccomment.user.js
 	var parseXMLToComment = function (xml) {
