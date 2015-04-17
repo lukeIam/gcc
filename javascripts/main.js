@@ -65,6 +65,14 @@
 		$('#btnDownloadGccFile a').attr('href', fileInfo["raw_url"]);
 		displayFinalCoordinate(c);
 		displayCoordinates(c);
+		
+		if(isMobile()){
+			$('tr').each(function(i,e){
+				$(e).children().first().hide();
+			});
+			$('#btnAddToGcc, #btnGetGCCInst').removeClass("twoLineButton").hide();
+		}
+		
 		unblockGui();
 	};
 	
@@ -72,7 +80,7 @@
 		for(var i=0; i<coord["waypoints"].length; i++){
 			var c = coord["waypoints"][i];
 			var convCoord = convertToDD(c.coordinate);
-			$("<tr><td><img style='height:16px;width:16px;' src='images/flag.png'></img></td> <td>"+ c.prefix +"</td> <td>"+ c.lookup +"</td> <td style='max-width: 170px; word-wrap: break-word;'>"+ c.name +"</td> <td><span>"+ c.coordinate +"</span><p style='margin-left: 30%;margin-bottom: 0;'> <a target='_blank' href='https://www.google.de/maps?q="+c.coordinate+"'><img src='images/gmap.png' style='height: 20px;'></img></a> <a target='_blank' href='https://www.openstreetmap.org/?mlat="+convCoord.lat+"&mlon="+convCoord.lon+"&zoom=16'><img src='images/osm.png' style='height: 20px;'></img></a> </p></td> </tr>")
+			$("<tr><td><img style='height:16px;width:16px;' src='images/flag.png'></img></td> <td style='max-width: 170px; word-wrap: break-word;'>"+ c.name +"</td> <td><span>"+ c.coordinate +"</span><p style='margin-left: 30%;margin-bottom: 0;'> <a target='_blank' href='https://www.google.de/maps?q="+c.coordinate+"'><img src='images/gmap.png' style='height: 20px;'></img></a> <a target='_blank' href='https://www.openstreetmap.org/?mlat="+convCoord.lat+"&mlon="+convCoord.lon+"&zoom=16'><img src='images/osm.png' style='height: 20px;'></img></a> </p></td> <td>"+ c.prefix +"</td> <td>"+ c.lookup +"</td> </tr>")
 			.appendTo('#boxCoords tbody')
 			.filter(isMobile).find("span").wrap("<a href='geo:"+convCoord.lat+","+convCoord.lon+"'></a>");			
 		}

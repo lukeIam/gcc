@@ -1,5 +1,6 @@
 .twoLineButton{
 	height: 30px;	
+	display: list-item !important;
 }
 
 .twoLineButton a {
