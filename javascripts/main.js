@@ -90,8 +90,8 @@
 		}
 	}
 	
-	var displayFinalCoordinate = function(coord){		
-		if(coord.lat === 0 && coord.lng === 0){
+	var displayFinalCoordinate = function(coord){
+		if(coord.lat === "" && coord.lng === ""){			
 			$('#final-coordinate').html("<span id='finalCoordSpan'>No final coordinates</span>");
 			return;
 		}
