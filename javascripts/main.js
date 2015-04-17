@@ -9,8 +9,8 @@
 		blockGui(loadingPopup);
 		
 		$('#btnAddToGcc').click(addToGcc);
-		$('h3').click(function(e){
-			$(e.target).next().slideToggle();
+		$('h3 a').click(function(e){			
+			$(e.target).parent().parent().next().slideToggle();
 		});
 		
 		var hash = window.location.hash.substring(1).trim();
