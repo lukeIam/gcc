@@ -66,6 +66,7 @@
 		$('#btnDownloadGccFile a').attr('href', fileInfo["raw_url"]);
 		displayFinalCoordinate(c);
 		displayCoordinates(c);
+		displayMap(c);
 		
 		if(isMobile()){
 			$('tr').each(function(i,e){
@@ -89,7 +90,7 @@
 			.appendTo('#boxCoords tbody')
 			.filter(isMobile).find("span").wrap("<a href='geo:"+convCoord.lat+","+convCoord.lon+"'></a>");			
 		}
-	}
+	};
 	
 	var displayFinalCoordinate = function(coord){
 		if(coord.lat === "" && coord.lng === ""){			
@@ -99,7 +100,83 @@
 		
 		$('#final-coordinate').html("<span id='finalCoordSpan'>"+ convertToDDMM(coord.lat, coord.lng) +"</span><p style='margin-bottom: 0;'> <a target='_blank' href='https://www.google.de/maps?q="+coord.lat +" "+ coord.lng +"'><img src='images/gmap.png' style='height: 20px;'></img></a> <a target='_blank' href='https://www.openstreetmap.org/?mlat="+coord.lat+"&mlon="+coord.lng+"&zoom=16'><img src='images/osm.png' style='height: 20px;'></img></a> </p>");
 		$('#finalCoordSpan').filter(isMobile).wrap("<a href='geo:"+coord.lat+","+coord.lng+"'></a>");
-	}
+	};
+	
+	var displayMap = function(coord){
+		var map = L.map('mapDiv');
+		L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+			maxZoom: 18
+		}).addTo(map);
+		
+		//Modified function from gccomment.user.js
+		var bounds = new L.LatLngBounds();
+		var aWaypoints = [];
+
+		var latlngHome = null;
+		
+		if (coord.origlat && coord.origlng) {
+			latlngHome = new L.LatLng(coord.origlat, coord.origlng);
+			aWaypoints.push(latlngHome);
+			var homeWaypoint = new L.Marker(latlngHome, {
+					icon : new L.Icon({
+						iconSize : new L.Point(16, 26),
+						iconAnchor : new L.Point(13, 26),
+						iconUrl : "images/marker.png"
+					}),
+					title : "Original coordinate",
+					clickable : false
+			});
+			map.addLayer(homeWaypoint);
+			bounds.extend(latlngHome);
+		}
+
+		for (var m = 0; coord.waypoints && (m < coord.waypoints.length); m++) {
+			var coords = convertToDD(coord.waypoints[m].coordinate);
+			if (coords.lat && coord.lon) {
+				var latlngWaypoint = new L.LatLng(coords["lat"], coords["lon"]);
+				var markerWaypoint = new L.Marker(latlngWaypoint, {
+					icon : new L.Icon({	
+						iconSize : new L.Point(22, 22),
+						iconAnchor : new L.Point(11, 11),
+						iconUrl : "images/flag.png"
+					}),
+					title : coord.waypoints[m].name,
+					clickable : false
+				});
+				map.addLayer(markerWaypoint);
+				aWaypoints.push(latlngWaypoint);
+				bounds.extend(latlngWaypoint);
+			}
+		}
+
+		if (coord.lat && coord.lng) {
+			var latlngFinal = new L.LatLng(coord.lat, coord.lng);
+			var markerFinal = new L.Marker(latlngFinal, {
+				icon : new L.Icon({
+					iconSize : new L.Point(22, 22),
+					iconAnchor : new L.Point(11, 11),
+					iconUrl : "images/finalIcon.png"
+				}),
+				title : "Custom final coordinate",
+				clickable : false
+			});
+			map.addLayer(markerFinal);
+			bounds.extend(latlngFinal);
+			aWaypoints.push(latlngFinal);
+		}
+		
+		// add line between waypoints
+		map.addLayer(new L.Polyline(aWaypoints, {
+			color : "#000000",
+			weight : 1,
+			clickable : false,
+			opacity : 1,
+			fillOpacity : 1
+		}));
+
+		map.fitBounds(bounds);
+	};
 	
 	var addToGcc = function(){
 		alert("Not working yet");

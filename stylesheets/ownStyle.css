@@ -36,3 +36,11 @@ h3{
 .gcLink a{
 	background: url(../images/LogoGeocaching.png) no-repeat;
 }
+
+#mapDiv { 
+	height: 350px;
+}
+
+#mapDiv  img{
+	border: none;
+}
