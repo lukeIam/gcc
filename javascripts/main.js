@@ -77,6 +77,10 @@
 	};
 	
 	var displayCoordinates = function(coord){
+		if(coord["waypoints"].length === 0){
+			$('#boxCoords').replaceWith("<span id='finalCoordSpan'>No custom coordinates</span>");
+			return;
+		}
 		for(var i=0; i<coord["waypoints"].length; i++){
 			var c = coord["waypoints"][i];
 			var convCoord = convertToDD(c.coordinate);
@@ -87,6 +91,11 @@
 	}
 	
 	var displayFinalCoordinate = function(coord){		
+		if(coord.lat === 0 && coord.lng === 0){
+			$('#final-coordinate').html("<span id='finalCoordSpan'>No final coordinates</span>");
+			return;
+		}
+		
 		$('#final-coordinate').html("<span id='finalCoordSpan'>"+ convertToDDMM(coord.lat, coord.lng) +"</span><p style='margin-bottom: 0;'> <a target='_blank' href='https://www.google.de/maps?q="+coord.lat +" "+ coord.lng +"'><img src='images/gmap.png' style='height: 20px;'></img></a> <a target='_blank' href='https://www.openstreetmap.org/?mlat="+coord.lat+"&mlon="+coord.lng+"&zoom=16'><img src='images/osm.png' style='height: 20px;'></img></a> </p>");
 		$('#finalCoordSpan').filter(isMobile).wrap("<a href='geo:"+coord.lat+","+coord.lng+"'></a>");
 	}
