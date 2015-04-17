@@ -138,7 +138,7 @@
 				var markerWaypoint = new L.Marker(latlngWaypoint, {
 					icon : new L.Icon({	
 						iconSize : new L.Point(22, 22),
-						iconAnchor : new L.Point(11, 11),
+						iconAnchor : new L.Point(20, 25),
 						iconUrl : "images/flag.png"
 					}),
 					title : coord.waypoints[m].name,
@@ -155,7 +155,7 @@
 			var markerFinal = new L.Marker(latlngFinal, {
 				icon : new L.Icon({
 					iconSize : new L.Point(22, 22),
-					iconAnchor : new L.Point(11, 11),
+					iconAnchor : new L.Point(20, 25),
 					iconUrl : "images/finalIcon.png"
 				}),
 				title : "Custom final coordinate",
