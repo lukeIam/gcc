@@ -44,3 +44,7 @@ h3{
 #mapDiv  img{
 	border: none;
 }
+
+.forceHide{
+	display: none !important;
+}

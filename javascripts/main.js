@@ -6,6 +6,10 @@
 	var _fileInfo = null;
 	
 	var init = function () {
+		if(isMobile()){			
+			$('#btnAddToGcc, #btnGetGCCInst').addClass("forceHide");
+		}
+		
 		blockGui(loadingPopup);
 		
 		$('#btnAddToGcc').click(addToGcc);
@@ -57,7 +61,7 @@
 	};
 
 	var displayComment = function (c, fileInfo) {
-		_comment = null;
+		_comment = c;
 		_fileInfo = fileInfo;
 		$('#lblGcCode').text(c.gccode);
 		$('#lblName').text(c.name);
@@ -71,8 +75,7 @@
 		if(isMobile()){
 			$('tr').each(function(i,e){
 				$(e).children().first().hide();
-			});
-			$('#btnAddToGcc, #btnGetGCCInst').removeClass("twoLineButton").hide();
+			});			
 		}
 		
 		unblockGui();
@@ -179,7 +182,12 @@
 	};
 	
 	var addToGcc = function(){
-		alert("Not working yet");
+		if(_comment !== null){
+			window.postMessage("GCC_Share_" + JSON.stringify(_comment), "*");
+		}
+		else{
+			alert("No data to import");
+		}		
 	};
 	
 	var getCommentData = function (id) {
