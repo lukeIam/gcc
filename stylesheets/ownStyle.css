@@ -48,3 +48,10 @@ h3{
 .forceHide{
 	display: none !important;
 }
+
+.greenButton{
+	background: #358200;	
+	background: -webkit-linear-gradient(top, #00AF4B 0%,#358200 100%);
+	box-shadow: inset 0px 1px 1px 0 rgba(34, 233, 2, 1);
+	-webkit-box-shadow: inset 0px 1px 1px 0 rgba(34, 233, 2, 1);
+}
