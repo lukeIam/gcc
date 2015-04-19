@@ -29,7 +29,7 @@ h3{
 	cursor: pointer;
 }
 
-#final-coordinate{
+#final-coordinate, #own-coordinate{
 	text-align: center;
 }
 
