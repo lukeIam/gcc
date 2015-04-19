@@ -80,7 +80,7 @@
 	
 	var displayCoordinates = function(coord){
 		if(coord["waypoints"].length === 0){
-			$('#boxCoords').replaceWith("<span id='finalCoordSpan'>No custom coordinates</span>");
+			$('#own-coordinate').html("<span id='finalCoordSpan'>No custom coordinates</span>");
 			return;
 		}
 		for(var i=0; i<coord["waypoints"].length; i++){
