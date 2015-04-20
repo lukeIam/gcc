@@ -64,7 +64,7 @@
 		_comment = c;
 		_fileInfo = fileInfo;
 		$('#lblGcCode').text(c.gccode);
-		$('#lblName').text(c.name);
+		$('#lblName').html(c.name.replace("<","") + "<br>(" + c.state.replace("-", "no state set").replace("<","") + ")");
 		$('#btnLinkGC a').attr("href", "http://coord.info/"+c.gccode);
 		$('#boxComment').text(c.commentValue);
 		$('#btnDownloadGccFile a').attr('href', fileInfo["raw_url"]);
