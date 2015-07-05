@@ -56,3 +56,15 @@ h3{
 .addButton  a{
 	background: url(../images/add.png) no-repeat;
 }
+
+.pointer{
+	cursor: pointer;
+}
+
+.menuContent{
+	height:97%;
+}
+
+.menuSelected{
+	background-color: #444;
+}

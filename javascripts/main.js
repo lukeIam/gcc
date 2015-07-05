@@ -3,7 +3,9 @@
 	var errorPopup = "<img src='images/error.png' style='height:64px;width:64px;border:none;margin:10px;'></img><p style='color: #fff;font-size: 16px;'>Sorry <br> <br> Could not load this comment</p>";
 
 	var _comment = null;
+	var _allComments = null;
 	var _fileInfo = null;
+	var map = null;
 	
 	var init = function () {
 		if(isMobile()){			
@@ -25,21 +27,83 @@
 		}
 
 		hash = hash.substring(3);
-
-		getCommentData(hash).fail(function (msg) {
-			console.log(msg);
-			blockGui(errorPopup);
-		}).done(function (comment) {
-			var parsedCom = parseXMLToComment(comment["content"]);
-			if (parsedCom === null) {
-				console.log("Comment could not be parsed");
-				blockGui(errorPopup);
+		
+		if(hash.toLowerCase().charAt(0) === "c" && hash.length === 21){
+			hash = hash.substring(1);
+			
+			gistShare.getComment(hash).done(function (files) {
+				if(files.length > 0){
+					var parsedCom = parseXMLToComment(files[0]["content"]);
+					if (parsedCom.length === 0) {
+						console.log("Comment could not be parsed");
+						blockGui(errorPopup);
+						return;
+					}
+					
+					_allComments = parsedCom;
+					
+					$('#commentMenueDiv').children().remove();
+					
+					var line = "";
+					for(i=0; i<parsedCom.length; i++){
+						line = parsedCom[i].name.substring(0,26) + " ("+parsedCom[i].gccode+")";
+						$('<div class="voice {}"><a style="cursor: pointer;" id="menu_'+i+'" class="label">'+line+'</a> </div>').appendTo('#commentMenueDiv');
+					}
+					
+					_fileInfo = files[0];
+					
+					var extr = $("#commentMenueDiv").buildMbExtruder({
+						position:"right",
+						width:400,
+						extruderOpacity:.8,
+						hidePanelsOnClose:true,
+						accordionPanels:true,
+						onExtOpen:function(){},
+						onExtContentLoad:function(){},
+						onExtClose:function(){}
+					}).show();
+					
+					$('.voice').find('a').click(menuChangeComment);
+					$('.extruder-content').children().first().addClass("menuContent");
+					$('.flapLabel').next().addClass("pointer");
+					
+					$("#commentMenueDiv a").first().click();
+					setTimeout(function(){extr.openMbExtruder(true)},500);
+				}
+				else{
+					console.log("No data");
+					blockGui(errorPopup);		
+					return;
+				}
+			}).fail(function(error){
+				console.log(error);
+				blockGui(errorPopup);	
 				return;
-			}
-
-			displayComment(parsedCom, comment);			
-		});
+			});					
+		}
+		else{
+			getCommentData(hash).fail(function (msg) {
+				console.log(msg);
+				blockGui(errorPopup);
+			}).done(function (comment) {
+				var parsedCom = parseXMLToComment(comment["content"]);
+				if (parsedCom.length === 0) {
+					console.log("Comment could not be parsed");
+					blockGui(errorPopup);
+					return;
+				}
+				_allComments = parsedCom;
+				displayComment(parsedCom[0], comment);			
+			});
+		}
 	};
+	
+	var menuChangeComment = function(e){
+		$('.menuSelected').removeClass("menuSelected");
+		var id = e.target.id.replace("menu_", "");
+		$(e.target).parent().addClass("menuSelected");
+		displayComment(_allComments[id], _fileInfo);			
+	}
 
 	var blockGui = function (messageHtml) {
 		$('#btnAddToGcc, #btnDownloadGccFile, #btnLinkGC').block({ message: null });
@@ -84,10 +148,16 @@
 	
 	var displayCoordinates = function(coord){
 		if(coord["waypoints"].length === 0){
-			$('#own-coordinate').html("<span id='finalCoordSpan'>No custom coordinates</span>");
+			$('#finalCoordSpan').show();
+			$('#boxCoords').hide();
 			return;
 		}
-		for(var i=0; i<coord["waypoints"].length; i++){
+		
+		$('#boxCoords tbody').children().remove();
+		$('#finalCoordSpan').hide();
+		$('#boxCoords').show();		
+		
+		for(var i=0; i<coord["waypoints"].length; i++){			
 			var c = coord["waypoints"][i];
 			var convCoord = convertToDD(c.coordinate);
 			$("<tr><td><img style='height:16px;width:16px;' src='images/flag.png'></img></td> <td style='max-width: 170px; word-wrap: break-word;'>"+ c.name +"</td> <td><span>"+ c.coordinate +"</span><p style='margin-left: 30%;margin-bottom: 0;'> <a target='_blank' href='https://www.google.de/maps?q="+c.coordinate+"'><img src='images/gmap.png' style='height: 20px;'></img></a> <a target='_blank' href='https://www.openstreetmap.org/?mlat="+convCoord.lat+"&mlon="+convCoord.lon+"&zoom=16'><img src='images/osm.png' style='height: 20px;'></img></a> </p></td> <td>"+ c.prefix +"</td> <td>"+ c.lookup +"</td> </tr>")
@@ -106,8 +176,12 @@
 		$('#finalCoordSpan').filter(isMobile).wrap("<a href='geo:"+coord.lat+","+coord.lng+"'></a>");
 	};
 	
-	var displayMap = function(coord){
-		var map = L.map('mapDiv');
+	var displayMap = function(coord){	
+		if(map !== null){
+			map.remove();
+		}
+	
+		map = L.map('mapDiv');
 		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 			attribution: 'Map data &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://mapbox.com">Mapbox</a>',
 			maxZoom: 18
@@ -259,81 +333,84 @@
 			console.log("No comment data found.");
 			return null;
 		}
-
-		var commentNode = comments[0];
-		try {
-			var imID = commentNode.childNodes[0].childNodes[0].nodeValue;
-			var imCode = "";
-			if (commentNode.childNodes[1].childNodes[0])
-				imCode = commentNode.childNodes[1].childNodes[0].nodeValue;
-			var imName = unescapeXML(unescape(commentNode.childNodes[2].childNodes[0].nodeValue));
-			var imContent = "";
-			if (commentNode.childNodes[3].childNodes[0]) {
-				imContent = unescapeXML(unescape(commentNode.childNodes[3].childNodes[0].nodeValue));
-			}
-			if ((imContent == "null") || (imContent == "undefined"))
-				imContent = "";
-
-			var imSave = commentNode.childNodes[4].childNodes[0].nodeValue;
-
-			var imState; // new property "state" with version 40
-			if (commentNode.childNodes[5])
-				imState = commentNode.childNodes[5].childNodes[0].nodeValue;
-
-			var imLat = "", imLng = ""; // new props lat, lng since v46
-			if (commentNode.childNodes[6] && commentNode.childNodes[7]) {
-				if (commentNode.childNodes[6].childNodes[0])
-					imLat = commentNode.childNodes[6].childNodes[0].nodeValue;
-				if (commentNode.childNodes[7].childNodes[0])
-					imLng = commentNode.childNodes[7].childNodes[0].nodeValue;
-			}
-
-			var imOriglat = "", imOriglng = ""; // new props for orig coordinate of
-			// cache
-			if (commentNode.childNodes[8] && commentNode.childNodes[9]) {
-				if (commentNode.childNodes[8].childNodes[0])
-					imOriglat = commentNode.childNodes[8].childNodes[0].nodeValue;
-				if (commentNode.childNodes[9].childNodes[0])
-					imOriglng = commentNode.childNodes[9].childNodes[0].nodeValue;
-			}
-
-			var imArchived = "";
-			if (commentNode.childNodes[10]) {
-				if (commentNode.childNodes[10].childNodes[0])
-					imArchived = commentNode.childNodes[10].childNodes[0].nodeValue;
-			}
-
-			var imWaypoints = [];
-			if (commentNode.childNodes[11]) {
-				for (var j = 0; j < commentNode.childNodes[11].childNodes.length; j++) {
-					var Xwpt = commentNode.childNodes[11].childNodes[j];
-					imWaypoints.push({
-						prefix: Xwpt.childNodes[0].childNodes[0].nodeValue,
-						lookup: Xwpt.childNodes[1].childNodes[0].nodeValue,
-						name: Xwpt.childNodes[2].childNodes[0].nodeValue,
-						coordinate: Xwpt.childNodes[3].childNodes[0].nodeValue
-					});
+		var result = [];
+		for(i=0; i<comments.length; i++){		
+			var commentNode = comments[i];
+			try {
+				var imID = commentNode.childNodes[0].childNodes[0].nodeValue;
+				var imCode = "";
+				if (commentNode.childNodes[1].childNodes[0])
+					imCode = commentNode.childNodes[1].childNodes[0].nodeValue;
+				var imName = unescapeXML(unescape(commentNode.childNodes[2].childNodes[0].nodeValue));
+				var imContent = "";
+				if (commentNode.childNodes[3].childNodes[0]) {
+					imContent = unescapeXML(unescape(commentNode.childNodes[3].childNodes[0].nodeValue));
 				}
-			}
-		} catch (e) {
-			console.log("Could not parse comment data.");
-			return null;
-		}
+				if ((imContent == "null") || (imContent == "undefined"))
+					imContent = "";
 
-		return {
-			guid: imID,
-			gccode: imCode,
-			name: imName,
-			commentValue: imContent,
-			saveTime: imSave,
-			state: imState,
-			lat: imLat,
-			lng: imLng,
-			origlat: imOriglat,
-			origlng: imOriglng,
-			archived: imArchived,
-			waypoints: imWaypoints
-		};
+				var imSave = commentNode.childNodes[4].childNodes[0].nodeValue;
+
+				var imState; // new property "state" with version 40
+				if (commentNode.childNodes[5])
+					imState = commentNode.childNodes[5].childNodes[0].nodeValue;
+
+				var imLat = "", imLng = ""; // new props lat, lng since v46
+				if (commentNode.childNodes[6] && commentNode.childNodes[7]) {
+					if (commentNode.childNodes[6].childNodes[0])
+						imLat = commentNode.childNodes[6].childNodes[0].nodeValue;
+					if (commentNode.childNodes[7].childNodes[0])
+						imLng = commentNode.childNodes[7].childNodes[0].nodeValue;
+				}
+
+				var imOriglat = "", imOriglng = ""; // new props for orig coordinate of
+				// cache
+				if (commentNode.childNodes[8] && commentNode.childNodes[9]) {
+					if (commentNode.childNodes[8].childNodes[0])
+						imOriglat = commentNode.childNodes[8].childNodes[0].nodeValue;
+					if (commentNode.childNodes[9].childNodes[0])
+						imOriglng = commentNode.childNodes[9].childNodes[0].nodeValue;
+				}
+
+				var imArchived = "";
+				if (commentNode.childNodes[10]) {
+					if (commentNode.childNodes[10].childNodes[0])
+						imArchived = commentNode.childNodes[10].childNodes[0].nodeValue;
+				}
+
+				var imWaypoints = [];
+				if (commentNode.childNodes[11]) {
+					for (var j = 0; j < commentNode.childNodes[11].childNodes.length; j++) {
+						var Xwpt = commentNode.childNodes[11].childNodes[j];
+						imWaypoints.push({
+							prefix: Xwpt.childNodes[0].childNodes[0].nodeValue,
+							lookup: Xwpt.childNodes[1].childNodes[0].nodeValue,
+							name: Xwpt.childNodes[2].childNodes[0].nodeValue,
+							coordinate: Xwpt.childNodes[3].childNodes[0].nodeValue
+						});
+					}
+				}
+			} catch (e) {
+				console.log("Could not parse comment data.");
+				return null;
+			}
+
+			result.push({
+				guid: imID,
+				gccode: imCode,
+				name: imName,
+				commentValue: imContent,
+				saveTime: imSave,
+				state: imState,
+				lat: imLat,
+				lng: imLng,
+				origlat: imOriglat,
+				origlng: imOriglng,
+				archived: imArchived,
+				waypoints: imWaypoints
+			});
+		}
+		return result;
 	};
 
 	var gistShare = new function () {
